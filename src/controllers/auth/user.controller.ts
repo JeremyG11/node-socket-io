@@ -17,8 +17,8 @@ export const createUserController = async (req: Request, res: Response) => {
     const user = await createUser(req.body);
     return res.json(user);
   } catch (err: any) {
-    console.log(err);
-    return res.status(500).json(err);
+    // console.log(err);
+    return res.status(500).json(err.message);
   }
 };
 
@@ -81,7 +81,7 @@ export const googleOauthController = async (req: Request, res: Response) => {
 
     res.redirect(process.env.CLIENT_ORIGIN);
   } catch (error) {
-    console.log(error, "Failed to authorize Google user");
+    // console.log(error, "Failed to authorize Google user");
     return res.redirect(`${process.env.CLIENT_ORIGIN}/oauth/error`);
   }
 };
@@ -117,6 +117,7 @@ export const loginWithEmailAndPassword = async (
 
     res.redirect(process.env.CLIENT_ORIGIN);
   } catch (err) {
+    console.log(err);
     console.log(err);
     return res.status(401).json(err.message);
   }

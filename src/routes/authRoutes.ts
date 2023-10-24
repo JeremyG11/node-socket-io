@@ -20,7 +20,7 @@ import { loginUserSchema, signupUserSchema } from "../schemas/user.schema";
 const router = express.Router();
 
 router.get("/user", withAuthUser, getCurrentUser);
-router.delete("/api/sessions", withAuthUser, deleteSession);
+router.delete("/sessions", withAuthUser, deleteSession);
 router.post(
   "/session",
   validator(createSessionSchema),

@@ -13,6 +13,15 @@ export const createUser = async (
 ) => {
   const { password, ...rest } = fields;
   try {
+    const userXist = await prisma.user.findUnique({
+      where: {
+        email: fields.email,
+      },
+    });
+
+    if (userXist) {
+      throw new Error("User with that email already exist");
+    }
     const hashedPassword = await argon2.hash(password);
 
     const user: User = await prisma.user.create({
@@ -39,9 +48,11 @@ export async function verifyPassword({
       email: email,
     },
   });
+  if (!user) return false;
+
   const isMatch = await argon2.verify(user.password, password);
 
-  if (!user || !isMatch) return false;
+  if (!isMatch) return false;
 
   return omit(user, "password");
 }

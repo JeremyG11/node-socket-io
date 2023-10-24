@@ -30,7 +30,19 @@ export const sendMessage = async (io: Server, req: Request, res: Response) => {
 
 export const getMessages = async (req: Request, res: Response) => {
   try {
-    const messages = await prisma.message.findMany({});
+    const messages = await prisma.message.findMany({
+      include: {
+        senderProfile: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+    console.log(messages);
     res.status(200).json(messages);
   } catch (error) {
     console.error("Error:", error);

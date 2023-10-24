@@ -1,5 +1,5 @@
-import { update } from "lodash";
-import { signJwt } from "../../utils/jwt";
+import { get } from "lodash";
+import { signJwt, verifyJwt } from "../../utils/jwt";
 import { verifyPassword } from "./user.service";
 import { CookieOptions, Request, Response } from "express";
 
@@ -7,7 +7,6 @@ export async function createSession(userId: string, userAgent: string) {
   const session = await prisma.session.upsert({
     where: {
       userId,
-      userAgent,
     },
     update: {
       userId,
@@ -78,8 +77,12 @@ export async function getUserSessions(req: Request, res: Response) {
 
 // delete session
 export async function deleteSession(req: Request, res: Response) {
-  const sessionId = res.locals.user.session;
+  const sessionId = res.locals?.user?.session;
+  console.log("Here");
   try {
+    if (!sessionId) {
+      throw new Error("No sessionId ");
+    }
     await prisma.session.update({
       where: {
         id: sessionId,
@@ -89,7 +92,17 @@ export async function deleteSession(req: Request, res: Response) {
       },
     });
 
-    return res.send({
+    res.cookie("accessToken", null, {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.cookie("refreshToken", null, {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    return res.status(200).json({
       accessToken: null,
       refreshToken: null,
     });
@@ -98,3 +111,32 @@ export async function deleteSession(req: Request, res: Response) {
     res.status(500).json(err.message);
   }
 }
+
+export const reIssueAccessToken = async ({
+  refreshToken,
+}: {
+  refreshToken: string;
+}) => {
+  const { decoded } = verifyJwt(refreshToken);
+
+  if (!decoded || !get(decoded, "session")) return false;
+
+  const session = await prisma.session.findUnique(get(decoded, "session"));
+
+  if (!session || !session.valid) return false;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.userId,
+    },
+  });
+
+  if (!user) return false;
+
+  const accessToken = signJwt(
+    { ...user, session: session.id },
+    { expiresIn: process.env.ACCESS_TOKEN_TIME } // 15 minutes
+  );
+
+  return accessToken;
+};
