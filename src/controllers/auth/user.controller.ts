@@ -1,6 +1,6 @@
 import {
-  accessTokenCookieOptions,
   createSession,
+  accessTokenCookieOptions,
   refreshTokenCookieOptions,
 } from "./session.service";
 import {
@@ -99,6 +99,7 @@ export const loginWithEmailAndPassword = async (
       );
     }
     const session = await createSession(user.id, req.get("user-agent") || "");
+
     // create an access token
     const accessToken = signJwt(
       { ...user, session: session.id },
@@ -113,12 +114,11 @@ export const loginWithEmailAndPassword = async (
 
     // set cookies
     res.cookie("accessToken", accessToken, accessTokenCookieOptions);
+
     res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
     res.redirect(process.env.CLIENT_ORIGIN);
   } catch (err) {
-    console.log(err);
-    console.log(err);
     return res.status(401).json(err.message);
   }
 };

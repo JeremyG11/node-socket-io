@@ -78,7 +78,6 @@ export async function getUserSessions(req: Request, res: Response) {
 // delete session
 export async function deleteSession(req: Request, res: Response) {
   const sessionId = res.locals?.user?.session;
-  console.log("Here");
   try {
     if (!sessionId) {
       throw new Error("No sessionId ");
@@ -107,7 +106,6 @@ export async function deleteSession(req: Request, res: Response) {
       refreshToken: null,
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json(err.message);
   }
 }
