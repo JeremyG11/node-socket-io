@@ -2,7 +2,7 @@
 
 
 
-#Environment variables
+# Environment variables
 Here are the enviroment variables from .env file 
 ```bash
   Basics
