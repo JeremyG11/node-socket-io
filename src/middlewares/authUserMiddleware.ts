@@ -8,7 +8,7 @@ export const withAuthUser = (
   const user = res.locals.user;
 
   if (!user) {
-    res.sendStatus(401); // Unauthenticated
+    return res.sendStatus(401); // Unauthenticated
   }
   return next();
 };

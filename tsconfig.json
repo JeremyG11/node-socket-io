@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "baseUrl": "src",
     "outDir": "dist",
     "sourceMap": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "skipLibCheck": true
   },
-  "include": ["./src/**/*", "src/types.ts"]
+  "include": ["./src/**/*", "./index.d.ts", "src/types.ts"]
 }

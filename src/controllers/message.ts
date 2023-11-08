@@ -1,37 +1,57 @@
 import { Server } from "socket.io";
 import { prisma } from "../libs/db";
 import { Request, Response } from "express";
+import { findOrCreateConversation } from "../libs/conversation";
 
-export const sendMessage = async (io: Server, req: Request, res: Response) => {
-  const { message } = req?.body;
-
-  // Validate message content
-  if (!message || typeof message !== "string" || message.trim() === "") {
-    return res.status(400).json({ error: "Message content cannot be empty." });
-  }
-
+export const getConversation = async (req: Request, res: Response) => {
+  const { receiverId } = req.query;
   try {
-    // const result = await prisma.message.create({
-    //   data: {
-    //     content: message,
-    //   },
-    // });
+    const conversation = await findOrCreateConversation(
+      res.locals.user?.id,
+      receiverId as string
+    );
+    res.status(200).json(conversation);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+export const sendMessageController = async (
+  io: Server,
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { message } = req.body;
+    const { receiverId } = req.query;
 
-    io.emit("message", message);
+    const conversation = await findOrCreateConversation(
+      res.locals.user?.id,
+      receiverId as string
+    );
 
-    res.status(200).json({ message: "Message sent successfully" });
+    const result = await prisma.message.create({
+      data: {
+        content: message,
+        conversationId: conversation?.id,
+        senderId: res.locals.user?.id,
+      },
+    });
   } catch (error) {
-    if (error.code === "P2002") {
-      console.error("Error:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    console.log(error);
+    // res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getMessages = async (req: Request, res: Response) => {
+export const getMessages = async (io: Server, req: Request, res: Response) => {
   try {
     const messages = await prisma.message.findMany({
       include: {
+        conversation: {
+          select: {
+            userProfileOne: true,
+          },
+        },
         senderProfile: {
           select: {
             id: true,
@@ -42,10 +62,10 @@ export const getMessages = async (req: Request, res: Response) => {
         },
       },
     });
-    console.log(messages);
+
     res.status(200).json(messages);
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

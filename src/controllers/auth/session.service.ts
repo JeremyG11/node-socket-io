@@ -1,6 +1,6 @@
 import { get } from "lodash";
-import { signJwt, verifyJwt } from "../../utils/jwt";
 import { verifyPassword } from "./user.service";
+import { signJwt, verifyJwt } from "../../utils/jwt";
 import { CookieOptions, Request, Response } from "express";
 
 export async function createSession(userId: string, userAgent: string) {

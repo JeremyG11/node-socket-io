@@ -34,7 +34,11 @@ router.post(
   loginWithEmailAndPassword
 );
 // Sign with email-password
-router.post("/user/signup", validator(signupUserSchema), createUserController);
+router.post(
+  "/user/email-password/signup",
+  validator(signupUserSchema),
+  createUserController
+);
 
 // continue with google
 router.get("/session/oauth/google", googleOauthController);

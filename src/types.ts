@@ -1,3 +1,11 @@
+import { Socket } from "socket.io";
+import { User } from "@prisma/client";
+
+export interface CustomSocket extends Socket {
+  user?: Pick<User, "id" | "email" | "name" | "imageUrl"> & {
+    username: string;
+  };
+}
 export type GoogleReturnedToken = {
   access_token: string;
   expires_in: number;

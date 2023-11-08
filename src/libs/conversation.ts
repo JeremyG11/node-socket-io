@@ -11,6 +11,10 @@ export const findOrCreateConversation = async (
         userProfileTwoId,
       },
     },
+    include: {
+      userProfileOne: true,
+      userProfileTwo: true,
+    },
   });
 
   if (!conversation) {
