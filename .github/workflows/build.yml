@@ -1,0 +1,21 @@
+name: "node-socket-app"
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Check source
+        uses: actions/checkout@v3
+
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build docker image
+        run: docker build -t gatwechpeter/node-socket-app .
+
+      - name: Publish to docker hub
+        run: docker push gatwechpeter/node-socket-app:latest

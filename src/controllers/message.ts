@@ -44,24 +44,9 @@ export const sendMessageController = async (
 };
 
 export const getMessages = async (io: Server, req: Request, res: Response) => {
+  const { receiverId } = req.query;
   try {
-    const messages = await prisma.message.findMany({
-      include: {
-        conversation: {
-          select: {
-            userProfileOne: true,
-          },
-        },
-        senderProfile: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
+    const messages = await findOrCreateConversation;
 
     res.status(200).json(messages);
   } catch (error) {

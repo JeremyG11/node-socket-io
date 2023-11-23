@@ -4,28 +4,61 @@ export const findOrCreateConversation = async (
   userProfileOneId: string,
   userProfileTwoId: string
 ) => {
-  const conversation = await prisma.conversation.findUnique({
-    where: {
-      userProfileOneId_userProfileTwoId: {
-        userProfileOneId,
-        userProfileTwoId,
-      },
-    },
-    include: {
-      userProfileOne: true,
-      userProfileTwo: true,
-    },
-  });
+  let conversation =
+    (await findConversation(userProfileOneId, userProfileTwoId)) ||
+    (await findConversation(userProfileTwoId, userProfileOneId));
 
   if (!conversation) {
-    const newConversation = await prisma.conversation.create({
+    conversation = await createNewConversation(
+      userProfileOneId,
+      userProfileTwoId
+    );
+  }
+
+  return conversation;
+};
+
+const findConversation = async (
+  userProfileOneId: string,
+  userProfileTwoId: string
+) => {
+  try {
+    return await prisma.conversation.findFirst({
+      where: {
+        AND: [
+          { userProfileOneId: userProfileOneId },
+          { userProfileTwoId: userProfileTwoId },
+        ],
+      },
+      include: {
+        userProfileOne: true,
+        userProfileTwo: true,
+        messages: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error finding conversation:", error);
+    return null;
+  }
+};
+
+const createNewConversation = async (
+  userProfileOneId: string,
+  userProfileTwoId: string
+) => {
+  try {
+    return await prisma.conversation.create({
       data: {
         userProfileOneId,
         userProfileTwoId,
       },
+      include: {
+        userProfileOne: true,
+        userProfileTwo: true,
+        messages: true,
+      },
     });
-
-    return newConversation;
+  } catch {
+    return null;
   }
-  return conversation;
 };

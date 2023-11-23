@@ -1,5 +1,9 @@
-import { object, number, string } from "zod";
+import { object, string } from "zod";
 
+/*
+  validating the user sign up fields
+  on server side
+*/
 export const signupUserSchema = object({
   body: object({
     name: string({
@@ -17,6 +21,10 @@ export const signupUserSchema = object({
   }),
 });
 
+/*
+  validating the user sign in fields
+  on server side
+*/
 export const loginUserSchema = object({
   body: object({
     email: string({

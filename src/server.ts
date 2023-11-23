@@ -59,7 +59,7 @@ io.on("connection", (socket: CustomSocket) => {
 
   // A catch-all listener
   socket.onAny((event, ...args) => {
-    // console.log(event, args);
+    console.log(event, args);
   });
 
   const activeUsers = [];
@@ -90,7 +90,7 @@ io.on("connection", (socket: CustomSocket) => {
         from: socket.user,
         to,
       });
-
+    console.log(socket.user.id);
     // message to database
     try {
       const conversation = await findOrCreateConversation(socket.user.id, to);
@@ -111,10 +111,23 @@ io.on("connection", (socket: CustomSocket) => {
     socket.broadcast.to(to).emit("broadcast typing", {});
   });
 
+  //  notifications
+  const notifications: {} = [];
+  socket.on("notification", (arg) => {
+    // send it to users
+    socket.broadcast.to(arg.to).emit("notification", arg.notification);
+  });
+  // Handle notification acknowledgment
+  socket.on("notification-acknowledgment", (notificationId) => {
+    // const notification = notifications.find((n) => n.id === notificationId);
+    // if (notification) {
+    //   notification.seen = true;
+    // }
+  });
+
   // Disconnect user
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.user.id).fetchSockets();
-    console.log(matchingSockets);
     // const isDisconnected = matchingSockets.size === 0;
     // if (isDisconnected) {
     //   socket.broadcast.emit("user disconnected", socket.user.id);

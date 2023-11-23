@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { User } from "@prisma/client";
+import { Notification, User } from "@prisma/client";
 
 export interface CustomSocket extends Socket {
   user?: Pick<User, "id" | "email" | "name" | "imageUrl"> & {
@@ -23,4 +23,15 @@ export interface GoogleAccountUser {
   family_name: string;
   picture: string;
   locale: string;
+}
+
+export interface NotificationWithUpdates extends Notification {
+  updates: {
+    isSeen: boolean;
+  };
+}
+
+export interface NotificationCreateInput {
+  senderId: string;
+  receiverId: string;
 }

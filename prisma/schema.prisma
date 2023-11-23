@@ -10,12 +10,15 @@ generator client {
 
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
+  name String @db.String
   imageUrl String? @db.String
   email String @db.String @unique
   password String? @db.String
 
   sessions Session []
+
+  sentNotifications Notification [] @relation("sender")
+  receivecedNotifications Notification [] @relation("receiver")
 
   asInitiator Conversation[] @relation("userProfileOne")
   asCorrespondent Conversation[] @relation("userProfileTwo")
@@ -76,4 +79,21 @@ model Message {
   updatedAt DateTime @updatedAt
 
   @@index([conversationId])
+}
+
+model Notification {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  deleted Boolean @default(false)
+  isSeen Boolean @default(false)
+  content String 
+
+  senderId String @db.ObjectId
+  senderProfile User @relation("sender", fields: [senderId], references: [id], onDelete:Cascade) 
+
+  receiverId String @db.ObjectId
+  receiverProfile User @relation("receiver", fields: [receiverId], references: [id], onDelete:Cascade) 
+
+  @@unique([senderId, receiverId])
+
+
 }
